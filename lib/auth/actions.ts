@@ -4,6 +4,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getSafeNextPath } from '@/lib/auth/redirect';
+import { getTenantSlug, isSuperadminHost } from '@/lib/tenant-host';
 import {
   resetPasswordSchema,
   signInSchema,
@@ -22,6 +23,11 @@ function getOrigin(): string {
   const protocol = requestHeaders.get('x-forwarded-proto') ?? 'http';
   if (!host) throw new Error('No se pudo determinar el host de la solicitud.');
   return `${protocol}://${host}`;
+}
+
+function getRequestTenantSlug(): string | null {
+  const requestHeaders = headers();
+  return requestHeaders.get('x-tenant-slug') ?? getTenantSlug(requestHeaders.get('host') ?? '');
 }
 
 async function getActiveTenant(tenantSlug: string) {
@@ -49,10 +55,11 @@ export async function signInAction(
 
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' };
 
-  const tenantSlug = formData.get('tenantSlug');
-  if (typeof tenantSlug !== 'string' || !tenantSlug) return { error: 'No se pudo identificar la tienda.' };
-  const tenant = await getActiveTenant(tenantSlug);
-  if (!tenant) return { error: 'La tienda no está disponible.' };
+  const requestHeaders = headers();
+  const superadmin = isSuperadminHost(requestHeaders.get('host') ?? '');
+  const tenantSlug = getRequestTenantSlug();
+  const tenant = tenantSlug ? await getActiveTenant(tenantSlug) : null;
+  if (!superadmin && !tenant) return { error: 'La tienda no está disponible.' };
 
   const supabase = createClient();
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -61,6 +68,24 @@ export async function signInAction(
   });
 
   if (error || !data.user) return { error: 'Email o contraseña incorrectos.' };
+
+  if (superadmin) {
+    const { data: role, error: roleError } = await supabase
+      .from('user_roles')
+      .select('id')
+      .eq('user_id', data.user.id)
+      .is('tenant_id', null)
+      .eq('rol', 'superadmin')
+      .maybeSingle();
+
+    if (roleError || !role) {
+      await supabase.auth.signOut();
+      return { error: 'No tienes permisos de superadmin.' };
+    }
+    redirect(getSafeNextPath(parsed.data.next, '/admin'));
+  }
+
+  if (!tenant) return { error: 'La tienda no está disponible.' };
 
   const { data: membership, error: membershipError } = await supabase
     .from('clientes_tenant')
@@ -85,13 +110,14 @@ export async function signUpAction(
   const parsed = signUpSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
-    password: formData.get('password'),
-    tenantSlug: formData.get('tenantSlug')
+    password: formData.get('password')
   });
 
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' };
 
-  const tenant = await getActiveTenant(parsed.data.tenantSlug);
+  const tenantSlug = getRequestTenantSlug();
+  if (!tenantSlug) return { error: 'El registro solo está disponible dentro de una tienda.' };
+  const tenant = await getActiveTenant(tenantSlug);
   if (!tenant) return { error: 'La tienda no está disponible.' };
 
   const supabase = createClient();
@@ -119,12 +145,13 @@ export async function requestPasswordResetAction(
   formData: FormData
 ): Promise<AuthActionState> {
   const parsed = resetPasswordSchema.safeParse({
-    email: formData.get('email'),
-    tenantSlug: formData.get('tenantSlug')
+    email: formData.get('email')
   });
 
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' };
-  const tenant = await getActiveTenant(parsed.data.tenantSlug);
+  const tenantSlug = getRequestTenantSlug();
+  if (!tenantSlug) return { error: 'La recuperación solo está disponible dentro de una tienda.' };
+  const tenant = await getActiveTenant(tenantSlug);
   if (!tenant) return { error: 'La tienda no está disponible.' };
 
   const supabase = createClient();

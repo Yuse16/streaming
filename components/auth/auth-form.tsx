@@ -40,11 +40,10 @@ function Field({ label, name, type = 'text', autoComplete }: { label: string; na
   );
 }
 
-export function LoginForm({ action, tenantSlug, next }: { action: AuthAction; tenantSlug: string; next?: string }) {
+export function LoginForm({ action, next }: { action: AuthAction; next?: string }) {
   const [state, formAction] = useFormState(action, {});
   return (
     <form action={formAction} className="grid gap-5">
-      <input name="tenantSlug" type="hidden" value={tenantSlug} />
       <input name="next" type="hidden" value={next ?? ''} />
       <Field label="Email" name="email" type="email" autoComplete="email" />
       <Field label="Contraseña" name="password" type="password" autoComplete="current-password" />
@@ -58,11 +57,10 @@ export function LoginForm({ action, tenantSlug, next }: { action: AuthAction; te
   );
 }
 
-export function SignUpForm({ action, tenantSlug }: { action: AuthAction; tenantSlug: string }) {
+export function SignUpForm({ action }: { action: AuthAction }) {
   const [state, formAction] = useFormState(action, {});
   return (
     <form action={formAction} className="grid gap-5">
-      <input name="tenantSlug" type="hidden" value={tenantSlug} />
       <Field label="Nombre" name="name" autoComplete="name" />
       <Field label="Email" name="email" type="email" autoComplete="email" />
       <Field label="Contraseña" name="password" type="password" autoComplete="new-password" />
@@ -73,11 +71,10 @@ export function SignUpForm({ action, tenantSlug }: { action: AuthAction; tenantS
   );
 }
 
-export function ResetPasswordForm({ action, tenantSlug }: { action: AuthAction; tenantSlug: string }) {
+export function ResetPasswordForm({ action }: { action: AuthAction }) {
   const [state, formAction] = useFormState(action, {});
   return (
     <form action={formAction} className="grid gap-5">
-      <input name="tenantSlug" type="hidden" value={tenantSlug} />
       <Field label="Email" name="email" type="email" autoComplete="email" />
       <FormMessage state={state} />
       <SubmitButton label="Enviar instrucciones" />

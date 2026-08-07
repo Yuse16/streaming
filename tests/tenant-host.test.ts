@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getTenantSlug } from '@/lib/tenant-host';
+import { getTenantSlug, isSuperadminHost } from '@/lib/tenant-host';
 
 describe('getTenantSlug', () => {
   it('resolves a localhost tenant with a port', () => {
@@ -17,5 +17,14 @@ describe('getTenantSlug', () => {
 
   it('does not resolve unrelated domains', () => {
     expect(getTenantSlug('tenant.example.com')).toBeNull();
+  });
+
+  it('does not resolve nested production subdomains', () => {
+    expect(getTenantSlug('nested.test.streamish.mx')).toBeNull();
+  });
+
+  it('identifies the superadmin host', () => {
+    expect(isSuperadminHost('admin.streamish.mx:443')).toBe(true);
+    expect(isSuperadminHost('test.streamish.mx')).toBe(false);
   });
 });
