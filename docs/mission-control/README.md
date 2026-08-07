@@ -4,11 +4,11 @@
 
 - Sesión 1: completada.
 - Sesión 2: completada y aplicada local/remotamente.
-- Sesión 3: activa en la rama `feat/auth-multitenant`.
+- Sesión 3: implementada en la rama `feat/auth-multitenant`.
 
 ## Criterio de avance
 
-La fase de autenticación termina cuando un cliente puede registrarse y entrar en el tenant correcto, las rutas protegidas redirigen sin sesión, y los roles de tenant y superadmin no pueden cruzar sus límites.
+La implementación de autenticación termina cuando un cliente puede registrarse y entrar en el tenant correcto, las rutas protegidas redirigen sin sesión, y los roles de tenant y superadmin no pueden cruzar sus límites. La prueba manual end-to-end queda pendiente porque no se hizo push ni se creó un usuario de prueba.
 
 ## Fuera de alcance
 

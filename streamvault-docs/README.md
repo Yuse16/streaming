@@ -13,7 +13,6 @@ streamvault/
 │   ├── vision-general.md            ← diagrama de alto nivel, roles, flujos
 │   └── multi-tenant.md              ← cómo funciona el subdominio por tenant
 ├── modulos/
-│   ├── panel-vendedor.md            ← gestión de inventario + carga de cuentas
 │   ├── panel-vendedor.md            ← admin del vendedor (su panel interno)
 │   ├── panel-superadmin.md          ← tu panel como operador de la plataforma
 │   ├── tienda-cliente.md            ← experiencia del comprador

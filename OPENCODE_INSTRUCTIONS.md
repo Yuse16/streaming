@@ -312,9 +312,9 @@ Estas sesiones se planifican cuando la Fase 1 esté en producción y con usuario
 > **ACTUALIZAR AL FINAL DE CADA SESIÓN**
 
 ```
-Última sesión completada: SESIÓN 2 — Schema de base de datos
-Rama actual: feat/database-schema
-Próxima sesión: SESIÓN 3 — Autenticación y resolución de tenant
+Última sesión completada: SESIÓN 3 — Autenticación y resolución de tenant
+Rama actual: feat/auth-multitenant
+Próxima sesión: SESIÓN 4 — Tienda del cliente (frontend)
 
 Notas para la próxima sesión:
 - Repositorio: https://github.com/Yuse16/streaming
@@ -323,6 +323,7 @@ Notas para la próxima sesión:
 - La migración inicial está aplicada en Supabase local y remoto
 - Vault contiene el secreto `inventory_encryption_key`
 - Docker ejecuta Supabase local en puertos alternos `55421`-`55424` porque otro proyecto usa los puertos estándar
+- La autenticación está implementada localmente; falta validación manual end-to-end con un usuario de prueba
 ```
 
 ---
