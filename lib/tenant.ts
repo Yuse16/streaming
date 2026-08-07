@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 export type Tenant = {
   id: string;
   slug: string;
+  custom_domain: string | null;
   nombre_tienda: string;
   logo_url: string | null;
   color_primario: string;
@@ -20,16 +21,19 @@ export type TenantConfig = {
 };
 
 export async function getCurrentTenant(): Promise<Tenant | null> {
-  const slug = headers().get('x-tenant-slug');
-  if (!slug) return null;
+  const requestHeaders = headers();
+  const slug = requestHeaders.get('x-tenant-slug');
+  const domain = requestHeaders.get('x-tenant-domain');
+  if (!slug && !domain) return null;
 
   const supabase = createClient();
-  const { data, error } = await supabase
+  const query = supabase
     .from('tenants')
-    .select('id, slug, nombre_tienda, logo_url, color_primario, activo')
-    .eq('slug', slug)
-    .eq('activo', true)
-    .maybeSingle();
+    .select('id, slug, custom_domain, nombre_tienda, logo_url, color_primario, activo')
+    .eq('activo', true);
+  const { data, error } = slug
+    ? await query.eq('slug', slug).maybeSingle()
+    : await query.eq('custom_domain', domain).maybeSingle();
 
   if (error) throw new Error(`No se pudo resolver el tenant: ${error.message}`);
   return data;

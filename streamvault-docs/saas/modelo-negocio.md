@@ -1,4 +1,4 @@
-# Modelo de Negocio — StreamVault SaaS
+# Modelo de Negocio — StreamingOS SaaS
 
 ## Cómo ganas dinero
 
@@ -18,7 +18,7 @@ Tienes dos fuentes de ingreso:
 
 ## Planes sugeridos
 
-| Plan | Precio/mes | Comisión StreamVault | Productos activos | OCR |
+| Plan | Precio/mes | Comisión StreamingOS | Productos activos | OCR |
 |---|---|---|---|---|
 | **Básico** | Gratis | 12% | 5 productos | ❌ |
 | **Pro** | $299 MXN | 8% | Ilimitado | ✅ |
@@ -60,7 +60,7 @@ Tienes dos fuentes de ingreso:
 
 ## Ventajas que vendes al vendedor
 
-| Sin StreamVault | Con StreamVault |
+| Sin StreamingOS | Con StreamingOS |
 |---|---|
 | Vende por WhatsApp, manual | Tienda propia con URL |
 | Inventario en Excel o de memoria | Sistema automático de stock |

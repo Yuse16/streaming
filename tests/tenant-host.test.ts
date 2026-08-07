@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getTenantSlug, isSuperadminHost } from '@/lib/tenant-host';
+import { getTenantHostContext, getTenantSlug, isSuperadminHost } from '@/lib/tenant-host';
 
 describe('getTenantSlug', () => {
   it('resolves a localhost tenant with a port', () => {
@@ -24,7 +24,16 @@ describe('getTenantSlug', () => {
   });
 
   it('identifies the superadmin host', () => {
+    expect(isSuperadminHost('superadmin.streamingos.mx:443')).toBe(true);
     expect(isSuperadminHost('admin.streamish.mx:443')).toBe(true);
     expect(isSuperadminHost('test.streamish.mx')).toBe(false);
+  });
+
+  it('resolves a custom tenant domain', () => {
+    expect(getTenantHostContext('streamish.mx')).toEqual({ kind: 'domain', domain: 'streamish.mx' });
+  });
+
+  it('resolves the StreamingOS superadmin context', () => {
+    expect(getTenantHostContext('superadmin.streamingos.mx')).toEqual({ kind: 'superadmin' });
   });
 });

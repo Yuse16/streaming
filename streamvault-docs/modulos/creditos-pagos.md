@@ -2,7 +2,7 @@
 
 ## Concepto
 
-StreamVault no procesa pagos directamente. Usa un sistema de créditos prepagados:
+StreamingOS no procesa pagos directamente. Usa un sistema de créditos prepagados:
 1. Cliente transfiere dinero al vendedor (SPEI / transferencia bancaria)
 2. Vendedor valida la transferencia y aprueba la recarga
 3. El sistema acredita créditos al cliente
@@ -108,7 +108,7 @@ create table movimientos_saldo (
 
 **Para MVP: Fase 1 manual. Fase 2: evaluar CoDi si el banco del vendedor lo soporta.**
 
-## Cálculo de comisión StreamVault
+## Cálculo de comisión StreamingOS
 
 Al momento de cada venta:
 ```typescript
@@ -127,4 +127,4 @@ const netoVendedor = precioProducto - comisionSV  // 58.5
 Política sugerida para el vendedor:
 - Si la cuenta vendida no funciona → reembolso automático de créditos
 - El vendedor gestiona esto desde su panel
-- La comisión de StreamVault se devuelve también (o no, configurable)
+- La comisión de StreamingOS se devuelve también (o no, configurable)

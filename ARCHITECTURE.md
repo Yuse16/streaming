@@ -1,17 +1,18 @@
 # Arquitectura
 
-Streamish es una aplicación Next.js 14 con App Router, Supabase Auth/Postgres/Storage y despliegue en Vercel.
+StreamingOS es una aplicación Next.js 14 con App Router, Supabase Auth/Postgres/Storage y despliegue en un proyecto Vercel white-label.
 
 ## Contextos
 
-- `streamish.mx`: landing y onboarding.
-- `[slug].streamish.mx`: tienda y sesión del cliente.
-- `[slug].streamish.mx/admin`: panel del vendedor.
-- `admin.streamish.mx`: panel superadmin.
+- `streamingos.mx`: landing y núcleo.
+- `streamish.mx`: primer dominio personalizado de tenant.
+- `*.localhost`: resolución de tenants durante desarrollo.
+- `superadmin.streamingos.mx`: panel superadmin.
+- `[custom-domain]/admin`: panel del vendedor del tenant.
 
 ## Resolución de tenant
 
-`middleware.ts` obtiene el slug desde el host y lo coloca en `x-tenant-slug`. Los Server Components resuelven el tenant activo mediante `lib/tenant.ts`. La identidad del usuario y su rol se validan con Supabase Auth y `user_roles`.
+`middleware.ts` clasifica el host: usa `x-tenant-slug` en local, `x-tenant-domain` para dominios personalizados y `x-context=superadmin` para el núcleo. Los Server Components resuelven el tenant activo mediante `lib/tenant.ts`. La identidad del usuario y su rol se validan con Supabase Auth y `user_roles`.
 
 ## Límites
 

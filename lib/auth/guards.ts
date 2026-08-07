@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentTenant, type Tenant } from '@/lib/tenant';
+import { isSuperadminHost } from '@/lib/tenant-host';
 
 async function getAuthenticatedUser() {
   const supabase = createClient();
@@ -76,8 +77,7 @@ export async function requireSuperadmin(): Promise<{ user: User }> {
 }
 
 export async function requireAdminAccess(): Promise<{ user: User; tenant: Tenant } | { user: User }> {
-  const host = headers().get('host')?.split(':')[0].toLowerCase();
-  if (host === 'admin.streamish.mx' || host === 'admin.localhost') {
+  if (isSuperadminHost(headers().get('host') ?? '')) {
     return requireSuperadmin();
   }
   return requireTenantAdmin();

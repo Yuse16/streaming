@@ -4,7 +4,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getSafeNextPath } from '@/lib/auth/redirect';
-import { getTenantSlug, isSuperadminHost } from '@/lib/tenant-host';
+import { isSuperadminHost } from '@/lib/tenant-host';
 import { purchaseResultSchema, type PurchaseResult } from '@/lib/purchase';
 import { Resend } from 'resend';
 import {
@@ -17,7 +17,7 @@ import {
   updatePasswordSchema
 } from '@/lib/auth/schemas';
 import { requireTenantMember } from '@/lib/auth/guards';
-import { getCurrentTenantConfig } from '@/lib/tenant';
+import { getCurrentTenant, getCurrentTenantConfig } from '@/lib/tenant';
 
 export type AuthActionState = {
   error?: string;
@@ -37,24 +37,6 @@ function getOrigin(): string {
   return `${protocol}://${host}`;
 }
 
-function getRequestTenantSlug(): string | null {
-  const requestHeaders = headers();
-  return requestHeaders.get('x-tenant-slug') ?? getTenantSlug(requestHeaders.get('host') ?? '');
-}
-
-async function getActiveTenant(tenantSlug: string) {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from('tenants')
-    .select('id, slug, activo')
-    .eq('slug', tenantSlug)
-    .eq('activo', true)
-    .maybeSingle();
-
-  if (error) throw new Error(`No se pudo validar la tienda: ${error.message}`);
-  return data;
-}
-
 export async function signInAction(
   _previousState: AuthActionState,
   formData: FormData
@@ -69,8 +51,7 @@ export async function signInAction(
 
   const requestHeaders = headers();
   const superadmin = isSuperadminHost(requestHeaders.get('host') ?? '');
-  const tenantSlug = getRequestTenantSlug();
-  const tenant = tenantSlug ? await getActiveTenant(tenantSlug) : null;
+  const tenant = await getCurrentTenant();
   if (!superadmin && !tenant) return { error: 'La tienda no está disponible.' };
 
   const supabase = createClient();
@@ -127,9 +108,8 @@ export async function signUpAction(
 
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' };
 
-  const tenantSlug = getRequestTenantSlug();
-  if (!tenantSlug) return { error: 'El registro solo está disponible dentro de una tienda.' };
-  const tenant = await getActiveTenant(tenantSlug);
+  const tenant = await getCurrentTenant();
+  if (!tenant) return { error: 'El registro solo está disponible dentro de una tienda.' };
   if (!tenant) return { error: 'La tienda no está disponible.' };
 
   const supabase = createClient();
@@ -161,9 +141,8 @@ export async function requestPasswordResetAction(
   });
 
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' };
-  const tenantSlug = getRequestTenantSlug();
-  if (!tenantSlug) return { error: 'La recuperación solo está disponible dentro de una tienda.' };
-  const tenant = await getActiveTenant(tenantSlug);
+  const tenant = await getCurrentTenant();
+  if (!tenant) return { error: 'La recuperación solo está disponible dentro de una tienda.' };
   if (!tenant) return { error: 'La tienda no está disponible.' };
 
   const supabase = createClient();

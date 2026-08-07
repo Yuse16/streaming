@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { getTenantSlug } from '@/lib/tenant-host';
+import { getTenantHostContext } from '@/lib/tenant-host';
 
 const protectedPrefixes = ['/tienda', '/mis-compras', '/recargar', '/perfil', '/admin'];
 
@@ -11,8 +11,10 @@ function isProtectedPath(pathname: string): boolean {
 
 export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
-  const slug = getTenantSlug(request.headers.get('host') ?? '');
-  if (slug) requestHeaders.set('x-tenant-slug', slug);
+  const hostContext = getTenantHostContext(request.headers.get('host') ?? '');
+  if (hostContext?.kind === 'superadmin') requestHeaders.set('x-context', 'superadmin');
+  if (hostContext?.kind === 'slug') requestHeaders.set('x-tenant-slug', hostContext.slug);
+  if (hostContext?.kind === 'domain') requestHeaders.set('x-tenant-domain', hostContext.domain);
 
   let response = NextResponse.next({ request: { headers: requestHeaders } });
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

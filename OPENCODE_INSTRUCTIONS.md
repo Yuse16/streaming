@@ -1,4 +1,4 @@
-# StreamVault — Instrucciones para OpenCode
+# StreamingOS — Instrucciones para OpenCode
 
 > Este archivo es el contexto maestro del proyecto. Léelo completo al inicio de cada sesión.
 > Actualiza la sección "Estado actual" al terminar cada sesión antes de cerrar.
@@ -7,9 +7,9 @@
 
 ## Qué es este proyecto
 
-**StreamVault** es una plataforma SaaS multi-tenant donde vendedores de cuentas de streaming
-operan bajo su propio subdominio (`vendedor.streamish.mx`). El operador podrá cobrar comisión
-por cada venta. Es una PWA (Progressive Web App) construida con Next.js + Supabase.
+**StreamingOS** es el núcleo SaaS multi-tenant white-label para vendedores de cuentas de streaming.
+Cada tenant puede operar con su propia marca y dominio personalizado, por ejemplo `streamish.mx`.
+El cliente final ve la marca del tenant, no StreamingOS. Es una PWA construida con Next.js + Supabase.
 
 **Documentación completa:** `/streamvault-docs/` (arquitectura, módulos, schema, flujos)
 
@@ -19,7 +19,7 @@ por cada venta. Es una PWA (Progressive Web App) construida con Next.js + Supaba
 
 - **Framework:** Next.js 14 (App Router) — TypeScript estricto
 - **Base de datos:** Supabase (Postgres + Auth + Storage + RLS)
-- **Hosting:** Vercel (wildcard subdomain `*.streamish.mx`)
+- **Hosting:** Vercel (un proyecto con dominios personalizados por tenant)
 - **PWA:** `next-pwa` con service worker y manifest por tenant
 - **Estilos:** Tailwind CSS
 - **OCR:** Tesseract.js (Fase 2: fallback a Claude Vision API)
@@ -61,11 +61,11 @@ por cada venta. Es una PWA (Progressive Web App) construida con Next.js + Supaba
 ## Estructura de carpetas
 
 ```
-streamvault/
+streamingos/
 ├── app/
-│   ├── (superadmin)/          ← rutas del superadmin (admin.streamish.mx)
+│   ├── (superadmin)/          ← rutas del superadmin (superadmin.streamingos.mx)
 │   │   └── admin/
-│   ├── (tenant)/              ← rutas de la tienda del cliente
+│   ├── (tenant)/              ← rutas de cualquier dominio tenant
 │   │   ├── page.tsx           ← home / catálogo
 │   │   ├── tienda/
 │   │   ├── recargar/
@@ -158,7 +158,7 @@ streamvault/
 - [ ] Recuperación de contraseña
 - [ ] Protección de rutas con middleware: `/tienda/*`, `/mis-compras`, `/recargar`, `/perfil`
 - [ ] Protección de rutas del vendor: `*/admin/*` — verificar que el usuario es owner del tenant
-- [ ] Protección del superadmin: `admin.streamish.mx/*` — verificar rol superadmin
+- [ ] Protección del superadmin: `superadmin.streamingos.mx/*` — verificar rol superadmin
 - [ ] Tabla `user_roles` o columna en tenant para identificar roles
 - [ ] Push + PR
 
@@ -245,7 +245,7 @@ streamvault/
 **Rama:** `feat/superadmin`
 
 **Tareas:**
-- [ ] Setup de subdominio `admin.streamish.mx` — ruta separada en middleware
+- [ ] Setup de dominio `superadmin.streamingos.mx` — ruta separada en middleware
 - [ ] Auth del superadmin (usuario especial con rol `superadmin` en DB)
 - [ ] Dashboard global: tenants activos, ventas totales, comisiones acumuladas
 - [ ] Página Tenants: tabla con todos los tenants, estado, plan, comisión %
@@ -313,12 +313,12 @@ Estas sesiones se planifican cuando la Fase 1 esté en producción y con usuario
 
 ```
 Última sesión completada: SESIÓN 5 — Páginas del cliente (perfil, historial, recarga)
-Rama actual: feat/cliente-pages
+Rama actual: feat/white-label-foundation
 Próxima sesión: SESIÓN 6 — Panel del Vendedor
 
 Notas para la próxima sesión:
 - Repositorio: https://github.com/Yuse16/streaming
-- Dominio confirmado: streamish.mx; las pruebas actuales usan Vercel y localhost
+- StreamingOS es el núcleo; Streamish es el primer tenant con dominio `streamish.mx`
 - Proyecto Supabase de producción creado
 - La migración inicial está aplicada en Supabase local y remoto
 - Vault contiene el secreto `inventory_encryption_key`
@@ -326,6 +326,7 @@ Notas para la próxima sesión:
 - La autenticación está implementada localmente; falta validación manual end-to-end con un usuario de prueba
 - El catálogo, detalle y compra RPC están implementados; falta completar una compra end-to-end con inventario de prueba
 - Perfil, historial y recargas están implementados; la migración de Storage/RPC está validada localmente y pendiente de aplicar remotamente
+- La migración white-label agrega `tenants.custom_domain`; falta aplicarla remotamente
 ```
 
 ---
@@ -339,8 +340,11 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=       # solo server-side
 # La clave de inventario se guarda en Supabase Vault, nunca en el repositorio.
 RESEND_API_KEY=
-NEXT_PUBLIC_ROOT_DOMAIN=streamish.mx
+NEXT_PUBLIC_ROOT_DOMAIN=streamingos.mx
+SUPERADMIN_DOMAIN=superadmin.streamingos.mx
 SUPERADMIN_EMAIL=                # tu email como superadmin
+VERCEL_TOKEN=                    # solo server-side para automatizar dominios
+VERCEL_PROJECT_ID=
 ```
 
 ---

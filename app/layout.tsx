@@ -7,7 +7,7 @@ import { getTenantBalance } from '@/lib/balance';
 import { createClient } from '@/lib/supabase/server';
 
 export const metadata: Metadata = {
-  title: 'Streamish',
+  title: 'StreamingOS',
   description: 'Tu tienda de cuentas digitales'
 };
 
