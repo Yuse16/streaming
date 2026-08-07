@@ -5,16 +5,25 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getSafeNextPath } from '@/lib/auth/redirect';
 import { getTenantSlug, isSuperadminHost } from '@/lib/tenant-host';
+import { purchaseResultSchema, type PurchaseResult } from '@/lib/purchase';
+import { Resend } from 'resend';
 import {
+  purchaseSchema,
   resetPasswordSchema,
   signInSchema,
   signUpSchema,
   updatePasswordSchema
 } from '@/lib/auth/schemas';
+import { requireTenantMember } from '@/lib/auth/guards';
 
 export type AuthActionState = {
   error?: string;
   success?: string;
+};
+
+export type PurchaseActionState = {
+  error?: string;
+  purchase?: PurchaseResult;
 };
 
 function getOrigin(): string {
@@ -181,4 +190,50 @@ export async function updatePasswordAction(
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
   if (error) return { error: 'No se pudo actualizar la contraseña.' };
   return { success: 'Contraseña actualizada. Ya puedes iniciar sesión.' };
+}
+
+async function sendPurchaseEmail(email: string | undefined, productName: string, purchase: PurchaseResult): Promise<void> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.RESEND_FROM_EMAIL;
+  if (!apiKey || !from || !email) return;
+
+  const resend = new Resend(apiKey);
+  await resend.emails.send({
+    from,
+    to: email,
+    subject: `Credenciales de tu compra: ${productName}`,
+    text: `Tu compra fue exitosa.\n\nServicio: ${productName}\nCorreo: ${purchase.correo}\nContraseña: ${purchase.password}`
+  });
+}
+
+export async function purchaseAccountAction(
+  _previousState: PurchaseActionState,
+  formData: FormData
+): Promise<PurchaseActionState> {
+  const parsed = purchaseSchema.safeParse({ productId: formData.get('productId') });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Producto inválido.' };
+
+  const { user, tenant } = await requireTenantMember();
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc('procesar_compra', {
+    p_producto_id: parsed.data.productId,
+    p_tenant_id: tenant.id,
+    p_user_id: user.id
+  });
+
+  if (error) {
+    if (error.message.includes('Saldo insuficiente')) return { error: 'No tienes créditos suficientes. Recarga aquí.' };
+    if (error.message.includes('Sin stock') || error.message.includes('no disponible')) return { error: 'Este producto ya no está disponible.' };
+    return { error: 'No se pudo completar la compra. Tu saldo no fue afectado.' };
+  }
+
+  const purchase = purchaseResultSchema.safeParse(data);
+  if (!purchase.success) return { error: 'La compra se completó, pero no se pudo preparar la entrega.' };
+
+  try {
+    await sendPurchaseEmail(user.email, 'tu cuenta digital', purchase.data);
+  } catch {
+    // La entrega por email no puede deshacer una compra ya confirmada por el RPC.
+  }
+  return { purchase: purchase.data };
 }

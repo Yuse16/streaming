@@ -26,5 +26,9 @@ export const updatePasswordSchema = z.object({
   path: ['confirmation']
 });
 
+export const purchaseSchema = z.object({
+  productId: z.string().uuid('Producto inválido.')
+});
+
 export type SignInInput = z.infer<typeof signInSchema>;
 export type SignUpInput = z.infer<typeof signUpSchema>;
