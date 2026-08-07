@@ -16,9 +16,9 @@ function Message({ state }: { state: AuthActionState }) {
   return null;
 }
 
-export function InventoryForm({ action, productId }: { action: VendorAction; productId: string }) {
+export function InventoryForm({ action, productId, initialRawAccounts = '' }: { action: VendorAction; productId: string; initialRawAccounts?: string }) {
   const [state, formAction] = useFormState(action, {});
-  return <form action={formAction} className="mt-4 grid gap-3"><input name="productId" type="hidden" value={productId} /><textarea className="min-h-28 rounded-xl border border-slate-700 bg-slate-950 p-3 text-sm text-white" name="rawAccounts" placeholder="correo@dominio.com:contraseña" required /><Message state={state} /><div><Submit label="Agregar cuentas" /></div></form>;
+  return <form action={formAction} className="mt-4 grid gap-3"><input name="productId" type="hidden" value={productId} /><textarea className="min-h-28 rounded-xl border border-slate-700 bg-slate-950 p-3 text-sm text-white" name="rawAccounts" placeholder="correo@dominio.com:contraseña" defaultValue={initialRawAccounts} required /><Message state={state} /><div><Submit label="Agregar cuentas" /></div></form>;
 }
 
 export function ProductToggleForm({ action, productId }: { action: VendorAction; productId: string }) {
