@@ -40,5 +40,29 @@ export const rechargeSchema = z.object({
   reference: z.string().trim().max(120, 'La referencia es demasiado larga.')
 });
 
+export const vendorProductSchema = z.object({ productId: z.string().uuid() });
+export const vendorInventorySchema = z.object({
+  productId: z.string().uuid(),
+  rawAccounts: z.string().min(1, 'Pega al menos una cuenta.')
+});
+export const rejectRechargeSchema = z.object({
+  rechargeId: z.string().uuid(),
+  note: z.string().trim().min(3, 'Escribe un motivo.').max(500)
+});
+export const balanceAdjustmentSchema = z.object({
+  userId: z.string().uuid(),
+  credits: z.coerce.number().refine((value) => value !== 0, 'El ajuste no puede ser cero.'),
+  note: z.string().trim().min(3).max(500)
+});
+export const storeConfigSchema = z.object({
+  storeName: z.string().trim().min(2).max(120),
+  primaryColor: z.string().regex(/^#[0-9a-f]{6}$/i),
+  logoUrl: z.string().url().or(z.literal('')),
+  bank: z.string().trim().max(120),
+  clabe: z.string().trim().max(30),
+  accountHolder: z.string().trim().max(120),
+  rechargeInstructions: z.string().trim().max(2000)
+});
+
 export type SignInInput = z.infer<typeof signInSchema>;
 export type SignUpInput = z.infer<typeof signUpSchema>;

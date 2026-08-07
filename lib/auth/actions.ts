@@ -11,13 +11,19 @@ import {
   purchaseSchema,
   profileSchema,
   rechargeSchema,
+  balanceAdjustmentSchema,
+  rejectRechargeSchema,
+  storeConfigSchema,
+  vendorInventorySchema,
+  vendorProductSchema,
   resetPasswordSchema,
   signInSchema,
   signUpSchema,
   updatePasswordSchema
 } from '@/lib/auth/schemas';
-import { requireTenantMember } from '@/lib/auth/guards';
+import { requireTenantAdmin, requireTenantMember } from '@/lib/auth/guards';
 import { getCurrentTenant, getCurrentTenantConfig } from '@/lib/tenant';
+import { revalidatePath } from 'next/cache';
 
 export type AuthActionState = {
   error?: string;
@@ -296,4 +302,80 @@ export async function requestRechargeAction(
   }
 
   return { success: 'Solicitud enviada. Tu vendedor la revisará pronto.' };
+}
+
+export async function addInventoryAction(_previousState: AuthActionState, formData: FormData): Promise<AuthActionState> {
+  const parsed = vendorInventorySchema.safeParse({ productId: formData.get('productId'), rawAccounts: formData.get('rawAccounts') });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' };
+  const { tenant } = await requireTenantAdmin();
+  const accounts = parsed.data.rawAccounts.split('\n').map((line) => line.trim()).filter(Boolean).map((line) => {
+    const separator = line.indexOf(':');
+    return separator > 0 ? { correo: line.slice(0, separator).trim(), password: line.slice(separator + 1).trim() } : null;
+  });
+  if (accounts.some((account) => !account || !/^\S+@\S+\.\S+$/.test(account.correo) || account.password.length < 4)) {
+    return { error: 'Cada línea debe tener formato correo:contraseña.' };
+  }
+  const supabase = createClient();
+  const { error } = await supabase.rpc('insertar_inventario_cuentas', { p_tenant_id: tenant.id, p_producto_id: parsed.data.productId, p_cuentas: accounts });
+  if (error) return { error: 'No se pudieron cargar las cuentas.' };
+  revalidatePath('/admin/inventario');
+  return { success: 'Cuentas agregadas al inventario.' };
+}
+
+export async function toggleProductAction(_previousState: AuthActionState, formData: FormData): Promise<AuthActionState> {
+  const parsed = vendorProductSchema.safeParse({ productId: formData.get('productId') });
+  if (!parsed.success) return { error: 'Producto inválido.' };
+  const { tenant } = await requireTenantAdmin();
+  const supabase = createClient();
+  const { data: product, error: productError } = await supabase.from('productos').select('desactivado_manualmente').eq('id', parsed.data.productId).eq('tenant_id', tenant.id).maybeSingle();
+  if (productError || !product) return { error: 'Producto no encontrado.' };
+  const nextManualState = !product.desactivado_manualmente;
+  const { count, error: stockError } = await supabase.from('inventario_cuentas').select('id', { count: 'exact', head: true }).eq('producto_id', parsed.data.productId).eq('tenant_id', tenant.id).eq('vendido', false);
+  if (stockError) return { error: 'No se pudo consultar el stock.' };
+  const { error } = await supabase.from('productos').update({ desactivado_manualmente: nextManualState, estado: nextManualState ? 'desactivado' : (count && count > 0 ? 'activo' : 'sin_stock') }).eq('id', parsed.data.productId).eq('tenant_id', tenant.id);
+  if (error) return { error: 'No se pudo actualizar el producto.' };
+  revalidatePath('/admin/inventario');
+  return { success: 'Producto actualizado.' };
+}
+
+export async function approveRechargeAction(_previousState: AuthActionState, formData: FormData): Promise<AuthActionState> {
+  const parsed = vendorProductSchema.pick({ productId: true }).safeParse({ productId: formData.get('rechargeId') });
+  if (!parsed.success) return { error: 'Recarga inválida.' };
+  const { user } = await requireTenantAdmin();
+  const { error } = await createClient().rpc('aprobar_recarga', { p_recarga_id: parsed.data.productId, p_admin_id: user.id });
+  if (error) return { error: 'No se pudo aprobar la recarga.' };
+  revalidatePath('/admin/recargas');
+  return { success: 'Recarga aprobada.' };
+}
+
+export async function rejectRechargeAction(_previousState: AuthActionState, formData: FormData): Promise<AuthActionState> {
+  const parsed = rejectRechargeSchema.safeParse({ rechargeId: formData.get('rechargeId'), note: formData.get('note') });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' };
+  const { user } = await requireTenantAdmin();
+  const { error } = await createClient().rpc('rechazar_recarga', { p_recarga_id: parsed.data.rechargeId, p_admin_id: user.id, p_nota: parsed.data.note });
+  if (error) return { error: 'No se pudo rechazar la recarga.' };
+  revalidatePath('/admin/recargas');
+  return { success: 'Recarga rechazada.' };
+}
+
+export async function adjustClientBalanceAction(_previousState: AuthActionState, formData: FormData): Promise<AuthActionState> {
+  const parsed = balanceAdjustmentSchema.safeParse({ userId: formData.get('userId'), credits: formData.get('credits'), note: formData.get('note') });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' };
+  const { user, tenant } = await requireTenantAdmin();
+  const { error } = await createClient().rpc('ajustar_saldo', { p_tenant_id: tenant.id, p_user_id: parsed.data.userId, p_creditos: parsed.data.credits, p_nota: parsed.data.note, p_admin_id: user.id });
+  if (error) return { error: 'No se pudo ajustar el saldo.' };
+  revalidatePath('/admin/clientes');
+  return { success: 'Saldo actualizado.' };
+}
+
+export async function updateStoreConfigAction(_previousState: AuthActionState, formData: FormData): Promise<AuthActionState> {
+  const parsed = storeConfigSchema.safeParse({ storeName: formData.get('storeName'), primaryColor: formData.get('primaryColor'), logoUrl: formData.get('logoUrl'), bank: formData.get('bank'), clabe: formData.get('clabe'), accountHolder: formData.get('accountHolder'), rechargeInstructions: formData.get('rechargeInstructions') });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' };
+  const { tenant } = await requireTenantAdmin();
+  const supabase = createClient();
+  const { error: tenantError } = await supabase.from('tenants').update({ nombre_tienda: parsed.data.storeName, color_primario: parsed.data.primaryColor, logo_url: parsed.data.logoUrl || null }).eq('id', tenant.id);
+  const { error: configError } = await supabase.from('tenant_config').upsert({ tenant_id: tenant.id, banco: parsed.data.bank || null, clabe: parsed.data.clabe || null, titular_cuenta: parsed.data.accountHolder || null, instrucciones_recarga: parsed.data.rechargeInstructions || null });
+  if (tenantError || configError) return { error: 'No se pudo guardar la configuración.' };
+  revalidatePath('/', 'layout');
+  return { success: 'Configuración guardada.' };
 }
