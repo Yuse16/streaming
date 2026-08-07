@@ -10,6 +10,15 @@ export type Tenant = {
   activo: boolean;
 };
 
+export type TenantConfig = {
+  clabe: string | null;
+  banco: string | null;
+  titular_cuenta: string | null;
+  instrucciones_recarga: string | null;
+  ocultar_agotados: boolean;
+  creditos_por_peso: number;
+};
+
 export async function getCurrentTenant(): Promise<Tenant | null> {
   const slug = headers().get('x-tenant-slug');
   if (!slug) return null;
@@ -23,5 +32,17 @@ export async function getCurrentTenant(): Promise<Tenant | null> {
     .maybeSingle();
 
   if (error) throw new Error(`No se pudo resolver el tenant: ${error.message}`);
+  return data;
+}
+
+export async function getCurrentTenantConfig(tenantId: string): Promise<TenantConfig | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('tenant_config')
+    .select('clabe, banco, titular_cuenta, instrucciones_recarga, ocultar_agotados, creditos_por_peso')
+    .eq('tenant_id', tenantId)
+    .maybeSingle();
+
+  if (error) throw new Error(`No se pudo cargar la configuración de la tienda: ${error.message}`);
   return data;
 }
