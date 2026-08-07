@@ -312,16 +312,16 @@ Estas sesiones se planifican cuando la Fase 1 esté en producción y con usuario
 > **ACTUALIZAR AL FINAL DE CADA SESIÓN**
 
 ```
-Última sesión completada: (ninguna — proyecto no iniciado)
-Rama actual: feat/setup-inicial
-Próxima sesión: SESIÓN 1 — Setup del proyecto
+Última sesión completada: SESIÓN 1 — Setup del proyecto
+Rama actual: feat/database-schema
+Próxima sesión: SESIÓN 2 — Schema de base de datos
 
 Notas para la próxima sesión:
-- Repositorio creado: https://github.com/Yuse16/streaming
-- Dominio confirmado: streamish.mx
-- Proyecto Supabase de producción creado; falta configurar las variables localmente
-- Crear proyecto Supabase local y proyecto Vercel
-- Configurar wildcard `*.streamish.mx` en Vercel/DNS
+- Repositorio: https://github.com/Yuse16/streaming
+- Dominio confirmado: streamish.mx; las pruebas actuales usan Vercel y localhost
+- Proyecto Supabase de producción creado
+- La migración inicial está preparada en `supabase/migrations/`
+- Falta aplicar la migración en Supabase remoto y configurar Vault
 ```
 
 ---
