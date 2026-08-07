@@ -312,9 +312,9 @@ Estas sesiones se planifican cuando la Fase 1 esté en producción y con usuario
 > **ACTUALIZAR AL FINAL DE CADA SESIÓN**
 
 ```
-Última sesión completada: SESIÓN 9 — OCR para carga de cuentas por imagen
-Rama actual: feat/ocr-image-upload
-Próxima sesión: SESIÓN 10 — Automatización de recargas
+Última sesión completada: SESIÓN 10 — Automatización de recargas
+Rama actual: feat/recargas-automaticas
+Próxima sesión: (MVP automatizado; siguiente prioridad: pruebas de producción)
 
 Notas para la próxima sesión:
 - Repositorio: https://github.com/Yuse16/streaming
@@ -331,6 +331,7 @@ Notas para la próxima sesión:
 - El panel superadmin está implementado; falta validación manual con rol superadmin y migraciones remotas
 - Manifest dinámico, service worker, offline y onboarding white-label están implementados; falta prueba de instalación móvil y Lighthouse
 - OCR Tesseract, fallback opcional Claude Vision y preview editable están implementados; requiere configurar `ANTHROPIC_API_KEY` para activar el fallback
+- Webhook SPEI agnóstico implementado con HMAC, idempotencia y conciliación RPC; requiere configurar `SUPABASE_SERVICE_ROLE_KEY` y `SPEI_WEBHOOK_SECRET`
 ```
 
 ---
