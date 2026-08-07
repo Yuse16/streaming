@@ -312,9 +312,9 @@ Estas sesiones se planifican cuando la Fase 1 esté en producción y con usuario
 > **ACTUALIZAR AL FINAL DE CADA SESIÓN**
 
 ```
-Última sesión completada: SESIÓN 4 — Tienda del cliente (frontend)
-Rama actual: feat/tienda-cliente
-Próxima sesión: SESIÓN 5 — Páginas del cliente (perfil, historial, recarga)
+Última sesión completada: SESIÓN 5 — Páginas del cliente (perfil, historial, recarga)
+Rama actual: feat/cliente-pages
+Próxima sesión: SESIÓN 6 — Panel del Vendedor
 
 Notas para la próxima sesión:
 - Repositorio: https://github.com/Yuse16/streaming
@@ -325,6 +325,7 @@ Notas para la próxima sesión:
 - Docker ejecuta Supabase local en puertos alternos `55421`-`55424` porque otro proyecto usa los puertos estándar
 - La autenticación está implementada localmente; falta validación manual end-to-end con un usuario de prueba
 - El catálogo, detalle y compra RPC están implementados; falta completar una compra end-to-end con inventario de prueba
+- Perfil, historial y recargas están implementados; la migración de Storage/RPC está validada localmente y pendiente de aplicar remotamente
 ```
 
 ---
