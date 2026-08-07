@@ -1,0 +1,21 @@
+import { describe, expect, it } from 'vitest';
+import { getTenantSlug } from '@/lib/tenant-host';
+
+describe('getTenantSlug', () => {
+  it('resolves a localhost tenant with a port', () => {
+    expect(getTenantSlug('test.localhost:3000')).toBe('test');
+  });
+
+  it('resolves a production tenant case-insensitively', () => {
+    expect(getTenantSlug('PePe.streamish.mx')).toBe('pepe');
+  });
+
+  it('does not resolve system hosts', () => {
+    expect(getTenantSlug('admin.streamish.mx')).toBeNull();
+    expect(getTenantSlug('streamish.mx')).toBeNull();
+  });
+
+  it('does not resolve unrelated domains', () => {
+    expect(getTenantSlug('tenant.example.com')).toBeNull();
+  });
+});

@@ -1,24 +1,45 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { getTenantSlug } from '@/lib/tenant-host';
 
-const systemSubdomains = new Set(['www', 'admin', 'streamish']);
+const protectedPrefixes = ['/tienda', '/mis-compras', '/recargar', '/perfil', '/admin'];
 
-function getTenantSlug(hostname: string): string | null {
-  const host = hostname.split(':')[0];
-  const parts = host.split('.');
-
-  if (host === 'localhost' || host === '127.0.0.1' || systemSubdomains.has(parts[0])) {
-    return null;
-  }
-
-  if (host.endsWith('.localhost')) return parts[0] || null;
-  if (host.endsWith('.streamish.mx') && parts.length >= 3) return parts[0] || null;
-  return null;
+function isProtectedPath(pathname: string): boolean {
+  return protectedPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }
 
-export function middleware(request: NextRequest) {
-  const response = NextResponse.next();
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({ request });
   const slug = getTenantSlug(request.headers.get('host') ?? '');
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Faltan variables de Supabase para el middleware');
+  }
+
+  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+        cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value));
+        response = NextResponse.next({ request });
+        cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
+      }
+    }
+  });
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (isProtectedPath(request.nextUrl.pathname) && !user) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = '/login';
+    loginUrl.searchParams.set('next', request.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 
   if (slug) response.headers.set('x-tenant-slug', slug);
   return response;
