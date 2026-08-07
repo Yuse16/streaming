@@ -1,6 +1,6 @@
-import { createHmac, timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { isValidWebhookSignature } from '@/lib/webhook';
 
 export const runtime = 'nodejs';
 
@@ -13,20 +13,12 @@ const webhookSchema = z.object({
   paid_at: z.string().datetime().optional()
 });
 
-function isValidSignature(rawBody: string, signature: string | null, secret: string): boolean {
-  if (!signature) return false;
-  const expected = createHmac('sha256', secret).update(rawBody).digest('hex');
-  const received = signature.replace(/^sha256=/, '');
-  if (received.length !== expected.length) return false;
-  return timingSafeEqual(Buffer.from(received), Buffer.from(expected));
-}
-
 export async function POST(request: Request) {
   const secret = process.env.SPEI_WEBHOOK_SECRET;
   if (!secret) return Response.json({ error: 'Webhook no configurado.' }, { status: 503 });
 
   const rawBody = await request.text();
-  if (!isValidSignature(rawBody, request.headers.get('x-webhook-signature'), secret)) {
+  if (!isValidWebhookSignature(rawBody, request.headers.get('x-webhook-signature'), secret)) {
     return Response.json({ error: 'Firma inválida.' }, { status: 401 });
   }
 

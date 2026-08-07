@@ -1,0 +1,3 @@
+export default function TermsPage() {
+  return <main className="mx-auto max-w-3xl px-6 py-16 text-slate-300"><h1 className="text-4xl font-bold text-white">Términos de servicio</h1><p className="mt-6 leading-7">El uso de cada tienda está sujeto a los términos del tenant que la opera y a las políticas de StreamingOS.</p><h2 className="mt-10 text-2xl font-semibold text-white">Uso autorizado</h2><p className="mt-3 leading-7">Los vendedores deben contar con autorización para comercializar las cuentas, servicios o productos que publiquen.</p><h2 className="mt-10 text-2xl font-semibold text-white">Recargas y entregas</h2><p className="mt-3 leading-7">Las recargas y entregas se procesan conforme a la información mostrada por cada tenant y sus políticas vigentes.</p></main>;
+}
