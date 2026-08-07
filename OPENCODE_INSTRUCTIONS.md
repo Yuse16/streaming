@@ -312,9 +312,9 @@ Estas sesiones se planifican cuando la Fase 1 esté en producción y con usuario
 > **ACTUALIZAR AL FINAL DE CADA SESIÓN**
 
 ```
-Última sesión completada: SESIÓN 7 — Panel Superadmin
-Rama actual: feat/superadmin
-Próxima sesión: SESIÓN 8 — PWA completa + pulido
+Última sesión completada: SESIÓN 8 — PWA completa + pulido
+Rama actual: feat/pwa-pulido
+Próxima sesión: SESIÓN 9 — OCR para carga de cuentas por imagen
 
 Notas para la próxima sesión:
 - Repositorio: https://github.com/Yuse16/streaming
@@ -329,6 +329,7 @@ Notas para la próxima sesión:
 - La migración white-label agrega `tenants.custom_domain`; falta aplicarla remotamente
 - El panel del vendedor está implementado; falta validación manual con usuario admin, inventario y recarga real
 - El panel superadmin está implementado; falta validación manual con rol superadmin y migraciones remotas
+- Manifest dinámico, service worker, offline y onboarding white-label están implementados; falta prueba de instalación móvil y Lighthouse
 ```
 
 ---
