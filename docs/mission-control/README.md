@@ -7,10 +7,11 @@
 - Sesión 3: implementada en la rama `feat/auth-multitenant`.
 - Sesión 4: implementada en la rama `feat/tienda-cliente`.
 - Sesión 5: implementada en la rama `feat/cliente-pages`.
+- Sesión 6: implementada en la rama `feat/panel-vendedor`.
 
 ## Criterio de avance
 
-La implementación de autenticación termina cuando un cliente puede registrarse y entrar en el tenant correcto, las rutas protegidas redirigen sin sesión, y los roles de tenant y superadmin no pueden cruzar sus límites. El cliente ahora puede consultar compras, editar su perfil y solicitar recargas con comprobantes privados. La prueba end-to-end y la aplicación remota de la migración quedan pendientes.
+La implementación de autenticación termina cuando un cliente puede registrarse y entrar en el tenant correcto, las rutas protegidas redirigen sin sesión, y los roles de tenant y superadmin no pueden cruzar sus límites. El cliente puede consultar compras, editar su perfil y solicitar recargas con comprobantes privados. El vendedor puede operar inventario, recargas, clientes, ventas y configuración. La prueba end-to-end y la aplicación remota de las migraciones quedan pendientes.
 
 ## Fuera de alcance
 
