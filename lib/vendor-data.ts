@@ -19,6 +19,7 @@ const rechargeSchema = z.object({
   banco_origen: z.string().nullable(),
   referencia: z.string().nullable(),
   comprobante_url: z.string().nullable(),
+  origen: z.enum(['manual', 'webhook']),
   estado: z.string(),
   created_at: z.string()
 });
@@ -56,7 +57,7 @@ export async function getPendingRecharges(tenantId: string): Promise<VendorRecha
   const supabase = createClient();
   const { data, error } = await supabase
     .from('recargas')
-    .select('id, user_id, monto, creditos, banco_origen, referencia, comprobante_url, estado, created_at')
+    .select('id, user_id, monto, creditos, banco_origen, referencia, comprobante_url, estado, origen, created_at')
     .eq('tenant_id', tenantId)
     .eq('estado', 'pendiente')
     .order('created_at', { ascending: false });
