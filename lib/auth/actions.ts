@@ -9,12 +9,15 @@ import { purchaseResultSchema, type PurchaseResult } from '@/lib/purchase';
 import { Resend } from 'resend';
 import {
   purchaseSchema,
+  profileSchema,
+  rechargeSchema,
   resetPasswordSchema,
   signInSchema,
   signUpSchema,
   updatePasswordSchema
 } from '@/lib/auth/schemas';
 import { requireTenantMember } from '@/lib/auth/guards';
+import { getCurrentTenantConfig } from '@/lib/tenant';
 
 export type AuthActionState = {
   error?: string;
@@ -236,4 +239,82 @@ export async function purchaseAccountAction(
     // La entrega por email no puede deshacer una compra ya confirmada por el RPC.
   }
   return { purchase: purchase.data };
+}
+
+export async function updateProfileAction(
+  _previousState: AuthActionState,
+  formData: FormData
+): Promise<AuthActionState> {
+  const parsed = profileSchema.safeParse({ displayName: formData.get('displayName') });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' };
+
+  const supabase = createClient();
+  const { error } = await supabase.auth.updateUser({ data: { display_name: parsed.data.displayName } });
+  if (error) return { error: 'No se pudo actualizar el perfil.' };
+  return { success: 'Perfil actualizado.' };
+}
+
+export async function changePasswordAction(
+  _previousState: AuthActionState,
+  formData: FormData
+): Promise<AuthActionState> {
+  const parsed = updatePasswordSchema.safeParse({
+    password: formData.get('password'),
+    confirmation: formData.get('confirmation')
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' };
+
+  const supabase = createClient();
+  const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
+  if (error) return { error: 'No se pudo cambiar la contraseña.' };
+  return { success: 'Contraseña actualizada.' };
+}
+
+export async function requestRechargeAction(
+  _previousState: AuthActionState,
+  formData: FormData
+): Promise<AuthActionState> {
+  const parsed = rechargeSchema.safeParse({
+    amount: formData.get('amount'),
+    bank: formData.get('bank'),
+    reference: formData.get('reference')
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' };
+
+  const file = formData.get('receipt');
+  if (!(file instanceof File) || file.size === 0) return { error: 'Sube el comprobante de transferencia.' };
+  if (file.size > 5 * 1024 * 1024) return { error: 'El comprobante no puede superar 5 MB.' };
+  if (!['image/jpeg', 'image/png', 'image/webp', 'application/pdf'].includes(file.type)) {
+    return { error: 'El comprobante debe ser JPG, PNG, WEBP o PDF.' };
+  }
+
+  const { user, tenant } = await requireTenantMember();
+  const config = await getCurrentTenantConfig(tenant.id);
+  const creditos = Number((parsed.data.amount * (config?.creditos_por_peso ?? 1)).toFixed(2));
+  const filename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const path = `${user.id}/${tenant.id}/${crypto.randomUUID()}-${filename}`;
+  const supabase = createClient();
+
+  const { error: uploadError } = await supabase.storage
+    .from('comprobantes')
+    .upload(path, file, { contentType: file.type, upsert: false });
+  if (uploadError) return { error: 'No se pudo subir el comprobante.' };
+
+  const { error: rechargeError } = await supabase.from('recargas').insert({
+    tenant_id: tenant.id,
+    user_id: user.id,
+    monto: parsed.data.amount,
+    creditos,
+    banco_origen: parsed.data.bank,
+    referencia: parsed.data.reference || null,
+    comprobante_url: path,
+    estado: 'pendiente'
+  });
+
+  if (rechargeError) {
+    await supabase.storage.from('comprobantes').remove([path]);
+    return { error: 'No se pudo registrar la solicitud de recarga.' };
+  }
+
+  return { success: 'Solicitud enviada. Tu vendedor la revisará pronto.' };
 }

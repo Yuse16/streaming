@@ -30,5 +30,15 @@ export const purchaseSchema = z.object({
   productId: z.string().uuid('Producto inválido.')
 });
 
+export const profileSchema = z.object({
+  displayName: z.string().trim().min(2, 'Ingresa un nombre válido.').max(120)
+});
+
+export const rechargeSchema = z.object({
+  amount: z.coerce.number().positive('El monto debe ser mayor a cero.').max(100000, 'El monto es demasiado grande.'),
+  bank: z.string().trim().min(2, 'Ingresa el banco de origen.').max(120),
+  reference: z.string().trim().max(120, 'La referencia es demasiado larga.')
+});
+
 export type SignInInput = z.infer<typeof signInSchema>;
 export type SignUpInput = z.infer<typeof signUpSchema>;
