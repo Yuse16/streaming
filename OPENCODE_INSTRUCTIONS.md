@@ -312,9 +312,9 @@ Estas sesiones se planifican cuando la Fase 1 esté en producción y con usuario
 > **ACTUALIZAR AL FINAL DE CADA SESIÓN**
 
 ```
-Última sesión completada: SESIÓN 6 — Panel del Vendedor
-Rama actual: feat/panel-vendedor
-Próxima sesión: SESIÓN 7 — Panel Superadmin
+Última sesión completada: SESIÓN 7 — Panel Superadmin
+Rama actual: feat/superadmin
+Próxima sesión: SESIÓN 8 — PWA completa + pulido
 
 Notas para la próxima sesión:
 - Repositorio: https://github.com/Yuse16/streaming
@@ -328,6 +328,7 @@ Notas para la próxima sesión:
 - Perfil, historial y recargas están implementados; la migración de Storage/RPC está validada localmente y pendiente de aplicar remotamente
 - La migración white-label agrega `tenants.custom_domain`; falta aplicarla remotamente
 - El panel del vendedor está implementado; falta validación manual con usuario admin, inventario y recarga real
+- El panel superadmin está implementado; falta validación manual con rol superadmin y migraciones remotas
 ```
 
 ---
