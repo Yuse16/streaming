@@ -6,10 +6,16 @@ import { getCurrentTenant } from '@/lib/tenant';
 import { getTenantBalance } from '@/lib/balance';
 import { createClient } from '@/lib/supabase/server';
 
-export const metadata: Metadata = {
-  title: 'StreamingOS',
-  description: 'Tu tienda de cuentas digitales'
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const tenant = await getCurrentTenant();
+  const name = tenant?.nombre_tienda ?? 'StreamingOS';
+  return {
+    title: name,
+    description: `Tienda digital de ${name}`,
+    manifest: '/api/manifest',
+    themeColor: tenant?.color_primario ?? '#22d3ee'
+  };
+}
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const tenant = await getCurrentTenant();
