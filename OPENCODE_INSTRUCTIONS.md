@@ -314,7 +314,7 @@ Estas sesiones se planifican cuando la Fase 1 esté en producción y con usuario
 ```
 Última sesión completada: SESIÓN 1 — Setup del proyecto
 Rama actual: feat/database-schema
-Próxima sesión: SESIÓN 2 — Schema de base de datos
+Próxima sesión: SESIÓN 2 — Aplicar y verificar schema de base de datos
 
 Notas para la próxima sesión:
 - Repositorio: https://github.com/Yuse16/streaming
