@@ -1,7 +1,7 @@
 import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 
-type Tenant = {
+export type Tenant = {
   id: string;
   slug: string;
   nombre_tienda: string;
