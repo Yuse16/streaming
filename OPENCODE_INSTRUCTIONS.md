@@ -313,8 +313,8 @@ Estas sesiones se planifican cuando la Fase 1 esté en producción y con usuario
 
 ```
 Última sesión completada: SESIÓN 10 — Automatización de recargas
-Rama actual: feat/recargas-automaticas
-Próxima sesión: (MVP automatizado; siguiente prioridad: pruebas de producción)
+Rama actual: fix/security-data
+Próxima sesión: FASE 2 — Entorno de pruebas (`staging/mvp`)
 
 Notas para la próxima sesión:
 - Repositorio: https://github.com/Yuse16/streaming
@@ -332,6 +332,7 @@ Notas para la próxima sesión:
 - Manifest dinámico, service worker, offline y onboarding white-label están implementados; falta prueba de instalación móvil y Lighthouse
 - OCR Tesseract, fallback opcional Claude Vision y preview editable están implementados; requiere configurar `ANTHROPIC_API_KEY` para activar el fallback
 - Webhook SPEI agnóstico implementado con HMAC, idempotencia y conciliación RPC; requiere configurar `SUPABASE_SERVICE_ROLE_KEY` y `SPEI_WEBHOOK_SECRET`
+- Fase 1 de seguridad aplicada local y remotamente: recargas por RPC, branding restringido, `password_enc` sin lectura para authenticated y auditoría por triggers
 ```
 
 ---
