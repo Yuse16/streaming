@@ -23,7 +23,7 @@ import {
   updatePasswordSchema
 } from '@/lib/auth/schemas';
 import { requireTenantAdmin, requireTenantMember } from '@/lib/auth/guards';
-import { getCurrentTenant, getCurrentTenantConfig } from '@/lib/tenant';
+import { getCurrentTenant } from '@/lib/tenant';
 import { revalidatePath } from 'next/cache';
 
 export type AuthActionState = {
@@ -275,8 +275,6 @@ export async function requestRechargeAction(
   }
 
   const { user, tenant } = await requireTenantMember();
-  const config = await getCurrentTenantConfig(tenant.id);
-  const creditos = Number((parsed.data.amount * (config?.creditos_por_peso ?? 1)).toFixed(2));
   const filename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
   const path = `${user.id}/${tenant.id}/${crypto.randomUUID()}-${filename}`;
   const supabase = createClient();
@@ -286,15 +284,12 @@ export async function requestRechargeAction(
     .upload(path, file, { contentType: file.type, upsert: false });
   if (uploadError) return { error: 'No se pudo subir el comprobante.' };
 
-  const { error: rechargeError } = await supabase.from('recargas').insert({
-    tenant_id: tenant.id,
-    user_id: user.id,
-    monto: parsed.data.amount,
-    creditos,
-    banco_origen: parsed.data.bank,
-    referencia: parsed.data.reference || null,
-    comprobante_url: path,
-    estado: 'pendiente'
+  const { error: rechargeError } = await supabase.rpc('crear_recarga', {
+    p_tenant_id: tenant.id,
+    p_monto: parsed.data.amount,
+    p_banco_origen: parsed.data.bank,
+    p_referencia: parsed.data.reference,
+    p_comprobante_url: path
   });
 
   if (rechargeError) {
@@ -374,7 +369,7 @@ export async function updateStoreConfigAction(_previousState: AuthActionState, f
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' };
   const { tenant } = await requireTenantAdmin();
   const supabase = createClient();
-  const { error: tenantError } = await supabase.from('tenants').update({ nombre_tienda: parsed.data.storeName, color_primario: parsed.data.primaryColor, logo_url: parsed.data.logoUrl || null }).eq('id', tenant.id);
+  const { error: tenantError } = await supabase.rpc('actualizar_branding_tenant', { p_tenant_id: tenant.id, p_nombre_tienda: parsed.data.storeName, p_logo_url: parsed.data.logoUrl, p_color_primario: parsed.data.primaryColor });
   const { error: configError } = await supabase.from('tenant_config').upsert({ tenant_id: tenant.id, banco: parsed.data.bank || null, clabe: parsed.data.clabe || null, titular_cuenta: parsed.data.accountHolder || null, instrucciones_recarga: parsed.data.rechargeInstructions || null });
   if (tenantError || configError) return { error: 'No se pudo guardar la configuración.' };
   revalidatePath('/', 'layout');
