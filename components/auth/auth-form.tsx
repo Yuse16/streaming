@@ -95,3 +95,8 @@ export function UpdatePasswordForm({ action }: { action: AuthAction }) {
     </form>
   );
 }
+
+export function OnboardingForm({ action }: { action: AuthAction }) {
+  const [state, formAction] = useFormState(action, {});
+  return <form action={formAction} className="grid gap-4"><Field label="Nombre comercial" name="commercialName" /><Field label="Slug deseado" name="desiredSlug" /><Field label="Email" name="email" type="email" autoComplete="email" /><Field label="WhatsApp" name="whatsapp" type="tel" /><label className="grid gap-2 text-sm text-slate-300"><span>Servicios que vendes</span><textarea className="min-h-24 rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-slate-100" name="services" /></label><FormMessage state={state} /><SubmitButton label="Solicitar acceso" /></form>;
+}

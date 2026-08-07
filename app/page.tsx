@@ -10,7 +10,8 @@ export default async function HomePage() {
       <main className="mx-auto flex min-h-screen max-w-5xl flex-col justify-center px-6 py-16">
         <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">StreamingOS</p>
         <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-white sm:text-6xl">Tu tienda digital, lista para crecer.</h1>
-        <p className="mt-6 max-w-xl text-lg leading-8 text-slate-300">Visita el subdominio de tu vendedor para consultar su catálogo.</p>
+        <p className="mt-6 max-w-xl text-lg leading-8 text-slate-300">Visita el dominio de tu vendedor para consultar su catálogo.</p>
+        <a className="mt-8 w-fit rounded-full bg-cyan-400 px-5 py-3 font-semibold text-slate-950" href="/registro">Solicitar mi tienda</a>
       </main>
     );
   }

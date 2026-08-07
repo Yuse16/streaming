@@ -16,6 +16,7 @@ import {
   storeConfigSchema,
   vendorInventorySchema,
   vendorProductSchema,
+  onboardingSchema,
   resetPasswordSchema,
   signInSchema,
   signUpSchema,
@@ -378,4 +379,12 @@ export async function updateStoreConfigAction(_previousState: AuthActionState, f
   if (tenantError || configError) return { error: 'No se pudo guardar la configuración.' };
   revalidatePath('/', 'layout');
   return { success: 'Configuración guardada.' };
+}
+
+export async function requestOnboardingAction(_previousState: AuthActionState, formData: FormData): Promise<AuthActionState> {
+  const parsed = onboardingSchema.safeParse({ commercialName: formData.get('commercialName'), desiredSlug: formData.get('desiredSlug'), email: formData.get('email'), whatsapp: formData.get('whatsapp'), services: formData.get('services') });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos.' };
+  const { error } = await createClient().from('onboarding_solicitudes').insert({ nombre_comercial: parsed.data.commercialName, slug_deseado: parsed.data.desiredSlug, email: parsed.data.email, whatsapp: parsed.data.whatsapp || null, servicios: parsed.data.services || null, estado: 'pendiente' });
+  if (error) return { error: 'No se pudo enviar la solicitud.' };
+  return { success: 'Solicitud enviada. Revisaremos tus datos y te contactaremos.' };
 }

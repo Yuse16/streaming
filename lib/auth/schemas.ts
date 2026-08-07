@@ -63,6 +63,13 @@ export const storeConfigSchema = z.object({
   accountHolder: z.string().trim().max(120),
   rechargeInstructions: z.string().trim().max(2000)
 });
+export const onboardingSchema = z.object({
+  commercialName: z.string().trim().min(2).max(120),
+  desiredSlug: z.string().trim().toLowerCase().regex(/^[a-z0-9-]+$/).max(63),
+  email: z.string().email().max(254),
+  whatsapp: z.string().trim().max(40),
+  services: z.string().trim().max(500)
+});
 
 export type SignInInput = z.infer<typeof signInSchema>;
 export type SignUpInput = z.infer<typeof signUpSchema>;
