@@ -8,7 +8,9 @@ export type TenantHostContext =
 
 export function isSuperadminHost(hostname: string): boolean {
   const host = hostname.split(':')[0].toLowerCase();
-  return host === 'superadmin.streamingos.mx'
+  const configuredDomain = process.env.SUPERADMIN_DOMAIN?.split(':')[0].toLowerCase();
+  return (configuredDomain !== undefined && host === configuredDomain)
+    || host === 'superadmin.streamingos.mx'
     || host === 'superadmin.localhost'
     || host === 'admin.streamish.mx';
 }
