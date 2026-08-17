@@ -313,8 +313,14 @@ Estas sesiones se planifican cuando la Fase 1 esté en producción y con usuario
 
 ```
 Última sesión completada: SESIÓN 10 — Automatización de recargas
-Rama actual: fix/security-data
+Rama actual: feat/production-hardening
 Próxima sesión: FASE 2 — Entorno de pruebas (`staging/mvp`)
+
+Pendientes de la Sesión 1 completados en esta sesión:
+- `public/manifest.json` base creado (fallback estático; el manifest dinámico `/api/manifest` lo sobreescribe por tenant)
+- El branding del tenant (nombre, colores, logo como CSS variables en `<html>`) ya está implementado en `app/layout.tsx`, por lo que no se creó `app/(tenant)/layout.tsx` (no hay rutas bajo ese route group y sería código muerto duplicado)
+- Los items 1–6 de la Sesión 1 ya estaban implementados y más avanzados (middleware con `lib/tenant-host.ts` por custom_domain/SUPERADMIN_DOMAIN, next-pwa integrado, `name: "streamingos"`, `lib/supabase/client.ts`, `lib/supabase/server.ts`, `lib/tenant.ts` con `getCurrentTenant()`)
+- Verificado: `npm run build` y `npx tsc --noEmit` sin errores
 
 Notas para la próxima sesión:
 - Repositorio: https://github.com/Yuse16/streaming
