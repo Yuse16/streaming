@@ -1,8 +1,12 @@
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { getCurrentTenant } from '@/lib/tenant';
 import { getActiveProducts } from '@/lib/catalog';
 import { CatalogGrid } from '@/components/tenant/catalog-grid';
+import { isSuperadminHost } from '@/lib/tenant-host';
 
 export default async function HomePage() {
+  if (isSuperadminHost(headers().get('host') ?? '')) redirect('/admin');
   const tenant = await getCurrentTenant();
   const { products } = await getActiveProducts();
   if (!tenant) {
