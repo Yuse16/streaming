@@ -11,3 +11,5 @@ supabase/.temp/
 .DS_Store
 public/sw.js
 public/workbox-*.js
+.vercel
+.env*
