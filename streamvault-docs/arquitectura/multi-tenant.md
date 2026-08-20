@@ -1,11 +1,12 @@
-# Multi-Tenant con Subdominios — Next.js + Vercel
+# Multi-Tenant White-Label con Dominios Personalizados — Next.js + Vercel
 
 ## Configuración en Vercel
 
-Agregar wildcard domain en el proyecto:
+Agregar el dominio del núcleo y los dominios de cada tenant en el proyecto:
 ```
-*.streamish.mx  →  proyecto en Vercel
-streamish.mx    →  proyecto en Vercel (landing/superadmin)
+streamingos.mx  →  proyecto en Vercel (núcleo)
+streamish.mx    →  proyecto en Vercel (tenant)
+streammax.mx    →  proyecto en Vercel (tenant)
 ```
 
 En DNS del dominio:
@@ -26,7 +27,7 @@ export function middleware(request: NextRequest) {
   const subdomain = hostname.split('.')[0]
 
   // Excluir dominios del sistema
-  const systemDomains = ['www', 'admin', 'streamish']
+  const systemDomains = ['www', 'superadmin', 'streamingos']
   if (systemDomains.includes(subdomain)) {
     return NextResponse.next()
   }
@@ -72,7 +73,8 @@ export async function getCurrentTenant() {
 ```sql
 create table tenants (
   id uuid primary key default gen_random_uuid(),
-  slug text unique not null,           -- 'pepe' → pepe.streamish.mx
+  slug text unique not null,           -- identificador interno
+  custom_domain text unique,           -- 'streamish.mx'
   nombre_tienda text not null,
   logo_url text,
   color_primario text default '#6366f1',

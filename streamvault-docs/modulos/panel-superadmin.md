@@ -1,17 +1,17 @@
 # Módulo: Panel Superadmin
 
-URL: `admin.streamish.mx`
+URL: `superadmin.streamingos.mx`
 
 ## Quién accede
 
-Solo tú (el operador de StreamVault). Acceso protegido por auth separada.
+Solo tú (el operador de StreamingOS). Acceso protegido por auth separada.
 
 ## Secciones
 
 ### 1. Dashboard Global
 - Total de tenants activos
 - Ventas totales del día / semana / mes (suma de todos los tenants)
-- Comisiones generadas para StreamVault
+- Comisiones generadas para StreamingOS
 - Tenants con mayor volumen de ventas
 - Alertas: tenants con plan vencido, tenants inactivos
 
@@ -63,7 +63,7 @@ Configuración de planes SaaS:
 - Límite de clientes
 
 ### 7. Configuración de Plataforma
-- Nombre y branding de StreamVault
+- Nombre y branding de StreamingOS
 - Dominio base
 - Datos de contacto de soporte
 - Mensaje de bienvenida para nuevos tenants

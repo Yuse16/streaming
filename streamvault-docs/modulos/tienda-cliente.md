@@ -1,11 +1,11 @@
 # Módulo: Tienda del Cliente
 
-URL: `[slug].streamish.mx/` (raíz del subdominio)
+URL: `[custom_domain]/` (dominio personalizado del tenant)
 
 ## Quién accede
 
 Compradores finales. Se registran directamente en la tienda del vendedor.
-Un cliente registrado en `pepe.streamish.mx` NO tiene acceso a `maria.streamish.mx`.
+Un cliente registrado en un dominio tenant NO tiene acceso a otro tenant.
 
 ## Páginas
 

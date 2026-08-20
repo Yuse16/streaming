@@ -1,0 +1,424 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: transparent; }
+  .app {
+    background: #0f0f13;
+    color: #f0f0f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    width: 100%;
+    max-width: 390px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px 12px;
+  }
+  .logo { display: flex; align-items: center; gap: 8px; }
+  .logo-icon {
+    width: 32px; height: 32px; background: #7c3aed;
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  }
+  .logo-text { font-size: 15px; font-weight: 600; color: #f0f0f0; letter-spacing: 0.3px; }
+  .logo-sub { font-size: 10px; color: #a78bfa; letter-spacing: 1.5px; font-weight: 500; }
+  .notif-btn {
+    position: relative; width: 38px; height: 38px;
+    background: #1e1e28; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    border: 0.5px solid #2a2a36; cursor: pointer;
+  }
+  .notif-badge {
+    position: absolute; top: 6px; right: 6px;
+    width: 8px; height: 8px; background: #a78bfa; border-radius: 50%;
+  }
+  .greeting { padding: 4px 20px 20px; }
+  .greeting-row { display: flex; align-items: flex-start; justify-content: space-between; }
+  .greeting h2 { font-size: 18px; font-weight: 600; color: #f0f0f0; }
+  .greeting p { font-size: 13px; color: #6b7280; margin-top: 2px; }
+  .date-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: #1e1e28; border: 0.5px solid #2a2a36;
+    border-radius: 20px; padding: 6px 12px; cursor: pointer;
+    font-size: 13px; color: #9ca3af;
+  }
+  .stats-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; padding: 0 20px 20px;
+  }
+  .stat-card {
+    background: #1a1a24; border: 0.5px solid #2a2a36;
+    border-radius: 14px; padding: 14px;
+  }
+  .stat-icon {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px; font-size: 16px;
+  }
+  .stat-label { font-size: 11px; color: #6b7280; margin-bottom: 4px; line-height: 1.3; }
+  .stat-value { font-size: 22px; font-weight: 700; color: #f0f0f0; }
+  .stat-delta { font-size: 11px; margin-top: 4px; }
+  .stat-link { font-size: 11px; color: #a78bfa; margin-top: 4px; cursor: pointer; }
+  .green { color: #34d399; }
+  .purple-bg { background: rgba(124,58,237,0.18); }
+  .green-bg { background: rgba(52,211,153,0.15); }
+  .blue-bg { background: rgba(59,130,246,0.15); }
+  .orange-bg { background: rgba(251,146,60,0.15); }
+
+  .section { padding: 0 20px 20px; }
+  .section-title { font-size: 13px; font-weight: 600; color: #f0f0f0; margin-bottom: 12px; }
+
+  .alerts-box {
+    background: #1a1a24; border: 0.5px solid #2a2a36;
+    border-radius: 14px; overflow: hidden;
+  }
+  .alerts-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 16px; border-bottom: 0.5px solid #2a2a36;
+    font-size: 13px; font-weight: 600; color: #f0f0f0;
+  }
+  .alert-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px;
+  }
+  .alert-row + .alert-row { border-top: 0.5px solid #1e1e28; }
+  .alert-dot {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .alert-dot.red { background: rgba(239,68,68,0.18); }
+  .alert-dot.purple { background: rgba(124,58,237,0.18); }
+  .alert-body { flex: 1; }
+  .alert-title { font-size: 12px; font-weight: 500; color: #e5e7eb; }
+  .alert-sub { font-size: 11px; color: #6b7280; margin-top: 2px; }
+  .alert-btn {
+    font-size: 11px; font-weight: 600; padding: 5px 10px;
+    border-radius: 20px; cursor: pointer; border: none; white-space: nowrap;
+  }
+  .alert-btn.red { background: rgba(239,68,68,0.15); color: #f87171; }
+  .alert-btn.purple { background: rgba(124,58,237,0.18); color: #a78bfa; }
+
+  .quick-actions { padding: 0 20px 20px; }
+  .qa-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;
+  }
+  .qa-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+  .qa-icon {
+    width: 46px; height: 46px; border-radius: 13px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .qa-label { font-size: 10px; color: #9ca3af; text-align: center; line-height: 1.3; }
+
+  .inv-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .ver-todo { font-size: 12px; color: #a78bfa; cursor: pointer; }
+  .inv-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .inv-card {
+    background: #1a1a24; border: 0.5px solid #2a2a36;
+    border-radius: 14px; padding: 12px; overflow: hidden;
+  }
+  .inv-logo {
+    width: 100%; height: 44px; object-fit: contain;
+    margin-bottom: 10px; display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; font-size: 13px; font-weight: 800; letter-spacing: -0.5px;
+  }
+  .inv-count { font-size: 22px; font-weight: 700; color: #f0f0f0; }
+  .inv-label { font-size: 11px; margin-top: 2px; }
+  .inv-bar {
+    height: 3px; border-radius: 2px; margin-top: 10px; background: #2a2a36;
+    overflow: hidden;
+  }
+  .inv-bar-fill { height: 100%; border-radius: 2px; }
+  .inv-status { font-size: 10px; margin-top: 6px; font-weight: 500; }
+
+  .orders { padding: 0 20px 20px; }
+  .order-card {
+    display: flex; align-items: center; gap: 12px;
+    background: #1a1a24; border: 0.5px solid #2a2a36;
+    border-radius: 14px; padding: 14px; margin-bottom: 10px; cursor: pointer;
+  }
+  .order-avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: #2a2a36; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .order-body { flex: 1; }
+  .order-header-row { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+  .order-num { font-size: 13px; font-weight: 600; color: #e5e7eb; }
+  .order-badge {
+    font-size: 10px; font-weight: 600; padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .badge-new { background: rgba(124,58,237,0.25); color: #a78bfa; }
+  .badge-done { background: rgba(52,211,153,0.15); color: #34d399; }
+  .order-product { font-size: 12px; color: #9ca3af; }
+  .order-client { font-size: 11px; color: #6b7280; margin-top: 2px; }
+  .order-right { text-align: right; }
+  .order-price { font-size: 15px; font-weight: 700; color: #34d399; }
+  .order-time { font-size: 10px; color: #6b7280; margin-top: 3px; }
+
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 390px;
+    background: #131318; border-top: 0.5px solid #2a2a36;
+    display: flex; justify-content: space-around;
+    padding: 10px 0 22px;
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; cursor: pointer; min-width: 56px;
+  }
+  .nav-label { font-size: 10px; color: #6b7280; }
+  .nav-label.active { color: #a78bfa; }
+  .nav-icon { font-size: 22px; color: #6b7280; }
+  .nav-icon.active { color: #a78bfa; }
+</style>
+
+<div class="app" role="main">
+  <h2 class="sr-only">StreamVault — panel del vendedor, vista principal</h2>
+
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <polygon points="3,2 16,9 3,16" fill="white" opacity="0.9"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text">StreamVault</div>
+        <div class="logo-sub">PANEL VENDEDOR</div>
+      </div>
+    </div>
+    <div class="notif-btn">
+      <i class="ti ti-bell" style="font-size:18px;color:#9ca3af" aria-label="Notificaciones"></i>
+      <div class="notif-badge"></div>
+    </div>
+  </div>
+
+  <div class="greeting">
+    <div class="greeting-row">
+      <div>
+        <h2>¡Hola, Mish! 👋</h2>
+        <p>Resumen de tu tienda hoy</p>
+      </div>
+      <div class="date-pill">
+        <i class="ti ti-calendar" style="font-size:14px" aria-hidden="true"></i>
+        Hoy
+        <i class="ti ti-chevron-down" style="font-size:12px" aria-hidden="true"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon purple-bg">
+        <i class="ti ti-shopping-cart" style="color:#a78bfa;font-size:17px" aria-hidden="true"></i>
+      </div>
+      <div class="stat-label">Ventas hoy</div>
+      <div class="stat-value">24</div>
+      <div class="stat-delta green">+12% vs ayer</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green-bg">
+        <i class="ti ti-currency-dollar" style="color:#34d399;font-size:17px" aria-hidden="true"></i>
+      </div>
+      <div class="stat-label">Ingresos hoy</div>
+      <div class="stat-value" style="font-size:18px">$2,160</div>
+      <div class="stat-delta green">+9% vs ayer</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon blue-bg">
+        <i class="ti ti-package" style="color:#60a5fa;font-size:17px" aria-hidden="true"></i>
+      </div>
+      <div class="stat-label">Pedidos pendientes</div>
+      <div class="stat-value">6</div>
+      <div class="stat-link">Ver pedidos</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon orange-bg">
+        <i class="ti ti-users" style="color:#fb923c;font-size:17px" aria-hidden="true"></i>
+      </div>
+      <div class="stat-label">Clientes activos</div>
+      <div class="stat-value">132</div>
+      <div class="stat-delta green">+7% vs ayer</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="alerts-box">
+      <div class="alerts-header">
+        <i class="ti ti-speakerphone" style="font-size:16px;color:#a78bfa" aria-hidden="true"></i>
+        Alertas importantes
+      </div>
+      <div class="alert-row">
+        <div class="alert-dot red">
+          <i class="ti ti-alert-circle" style="font-size:15px;color:#f87171" aria-hidden="true"></i>
+        </div>
+        <div class="alert-body">
+          <div class="alert-title">Stock bajo en Disney+</div>
+          <div class="alert-sub">Solo 18 disponibles</div>
+        </div>
+        <button class="alert-btn red">Ver stock</button>
+      </div>
+      <div class="alert-row">
+        <div class="alert-dot purple">
+          <i class="ti ti-bell" style="font-size:15px;color:#a78bfa" aria-hidden="true"></i>
+        </div>
+        <div class="alert-body">
+          <div class="alert-title">Nuevo pedido recibido</div>
+          <div class="alert-sub">Hace 2 min — Disney+ Max</div>
+        </div>
+        <button class="alert-btn purple">Ver pedido</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="quick-actions">
+    <div class="section-title">Acciones rápidas</div>
+    <div class="qa-grid">
+      <div class="qa-item">
+        <div class="qa-icon" style="background:rgba(124,58,237,0.18)">
+          <i class="ti ti-plus" style="color:#a78bfa" aria-hidden="true"></i>
+        </div>
+        <div class="qa-label">Nuevo producto</div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-icon" style="background:rgba(59,130,246,0.15)">
+          <i class="ti ti-upload" style="color:#60a5fa" aria-hidden="true"></i>
+        </div>
+        <div class="qa-label">Cargar cuentas</div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-icon" style="background:rgba(52,211,153,0.15)">
+          <i class="ti ti-list" style="color:#34d399" aria-hidden="true"></i>
+        </div>
+        <div class="qa-label">Ver pedidos</div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-icon" style="background:rgba(251,146,60,0.15)">
+          <i class="ti ti-users" style="color:#fb923c" aria-hidden="true"></i>
+        </div>
+        <div class="qa-label">Clientes</div>
+      </div>
+      <div class="qa-item">
+        <div class="qa-icon" style="background:rgba(100,100,120,0.25)">
+          <i class="ti ti-chart-bar" style="color:#9ca3af" aria-hidden="true"></i>
+        </div>
+        <div class="qa-label">Reportes</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="inv-header">
+      <div class="section-title" style="margin:0">Inventario rápido</div>
+      <div class="ver-todo">Ver todo</div>
+    </div>
+    <div class="inv-grid">
+      <div class="inv-card">
+        <div class="inv-logo" style="background:#001f5c;color:#a5c8ff;font-size:12px;letter-spacing:0">
+          Disney<span style="color:#4fc3f7">+</span>
+        </div>
+        <div class="inv-count" style="color:#f87171">18</div>
+        <div class="inv-label" style="color:#f87171">disponibles</div>
+        <div class="inv-bar"><div class="inv-bar-fill" style="width:22%;background:#ef4444"></div></div>
+        <div class="inv-status" style="color:#f87171">Stock bajo</div>
+      </div>
+      <div class="inv-card">
+        <div class="inv-logo" style="background:#001B3D;color:white;font-size:14px">max</div>
+        <div class="inv-count">42</div>
+        <div class="inv-label" style="color:#34d399">disponibles</div>
+        <div class="inv-bar"><div class="inv-bar-fill" style="width:65%;background:#34d399"></div></div>
+        <div class="inv-status" style="color:#34d399">En stock</div>
+      </div>
+      <div class="inv-card">
+        <div class="inv-logo" style="background:#1a1a24;color:white;font-size:10px;font-weight:700">
+          prime<br><span style="color:#00a8e0;font-size:12px">video</span>
+        </div>
+        <div class="inv-count">35</div>
+        <div class="inv-label" style="color:#34d399">disponibles</div>
+        <div class="inv-bar"><div class="inv-bar-fill" style="width:55%;background:#34d399"></div></div>
+        <div class="inv-status" style="color:#34d399">En stock</div>
+      </div>
+      <div class="inv-card">
+        <div class="inv-logo" style="background:#000;color:#e50914;font-size:15px;font-weight:900">NETFLIX</div>
+        <div class="inv-count">27</div>
+        <div class="inv-label" style="color:#34d399">disponibles</div>
+        <div class="inv-bar"><div class="inv-bar-fill" style="width:42%;background:#34d399"></div></div>
+        <div class="inv-status" style="color:#34d399">En stock</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="orders">
+    <div class="inv-header">
+      <div class="section-title" style="margin:0">Pedidos recientes</div>
+      <div class="ver-todo">Ver todos</div>
+    </div>
+    <div class="order-card">
+      <div class="order-avatar">
+        <i class="ti ti-user" style="font-size:18px;color:#6b7280" aria-hidden="true"></i>
+      </div>
+      <div class="order-body">
+        <div class="order-header-row">
+          <span class="order-num">#1258</span>
+          <span class="order-badge badge-new">Nuevo</span>
+        </div>
+        <div class="order-product">Disney+ Max (1 Mes)</div>
+        <div class="order-client">Juan Pérez</div>
+      </div>
+      <div class="order-right">
+        <div class="order-price">$90</div>
+        <div class="order-time">Hace 2 min</div>
+      </div>
+    </div>
+    <div class="order-card">
+      <div class="order-avatar">
+        <i class="ti ti-user" style="font-size:18px;color:#6b7280" aria-hidden="true"></i>
+      </div>
+      <div class="order-body">
+        <div class="order-header-row">
+          <span class="order-num">#1257</span>
+          <span class="order-badge badge-done">Entregado</span>
+        </div>
+        <div class="order-product">Prime Video (1 Mes)</div>
+        <div class="order-client">María López</div>
+      </div>
+      <div class="order-right">
+        <div class="order-price">$60</div>
+        <div class="order-time">Hace 15 min</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom-nav" aria-label="Navegación principal">
+  <div class="nav-item">
+    <i class="ti ti-home nav-icon active" aria-hidden="true"></i>
+    <span class="nav-label active">Inicio</span>
+  </div>
+  <div class="nav-item">
+    <i class="ti ti-package nav-icon" aria-hidden="true"></i>
+    <span class="nav-label">Pedidos</span>
+  </div>
+  <div class="nav-item">
+    <i class="ti ti-box nav-icon" aria-hidden="true"></i>
+    <span class="nav-label">Productos</span>
+  </div>
+  <div class="nav-item">
+    <i class="ti ti-users nav-icon" aria-hidden="true"></i>
+    <span class="nav-label">Clientes</span>
+  </div>
+  <div class="nav-item">
+    <i class="ti ti-dots nav-icon" aria-hidden="true"></i>
+    <span class="nav-label">Más</span>
+  </div>
+</nav>

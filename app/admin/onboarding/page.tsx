@@ -1,0 +1,6 @@
+import { getOnboardingRequests } from '@/lib/superadmin-data';
+import { reviewOnboardingAction } from '@/lib/superadmin-actions';
+import { OnboardingForm } from '@/components/superadmin/superadmin-forms';
+import { requireSuperadmin } from '@/lib/auth/guards';
+
+export default async function OnboardingPage() { await requireSuperadmin(); const requests = await getOnboardingRequests(); return <div><p className="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-300">Onboarding</p><h1 className="mt-2 text-3xl font-bold text-white">Solicitudes de vendedores</h1><div className="mt-8 grid gap-4">{requests.length === 0 ? <p className="text-slate-400">No hay solicitudes.</p> : requests.map((request) => <article className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5" key={request.id}><h2 className="font-semibold text-white">{request.nombre_comercial}</h2><p className="mt-2 text-sm text-slate-400">{request.email} · {request.slug_deseado}</p><p className="mt-2 text-sm text-slate-300">Estado: {request.estado}</p>{request.estado === 'pendiente' ? <div className="mt-4"><OnboardingForm action={reviewOnboardingAction} requestId={request.id} /></div> : null}</article>)}</div></div>; }

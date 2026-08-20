@@ -1,16 +1,16 @@
-# Arquitectura General — StreamVault
+# Arquitectura General — StreamingOS
 
 ## Diagrama de alto nivel
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    streamish.mx (raíz)                     │
-│              Landing + registro de nuevos tenants           │
+│                  streamingos.mx (núcleo)                   │
+│          Superadmin + registro de nuevos tenants             │
 └──────────────────────────┬──────────────────────────────────┘
                            │
         ┌──────────────────┼──────────────────┐
         ▼                  ▼                  ▼
-   pepe.streamish.mx  maria.streamish.mx carlos.streamish.mx
+   streamish.mx       streammax.mx       cuentasflix.com
   (Tenant A)         (Tenant B)         (Tenant C)
         │
         ├── /tienda          ← clientes compran aquí
@@ -23,17 +23,17 @@
 
 ## Cómo se resuelve el tenant
 
-1. Request llega a `pepe.streamish.mx`
-2. Middleware de Next.js extrae el subdominio
-3. Busca en tabla `tenants` el registro con `slug = 'pepe'`
-4. Inyecta `tenant_id` en el contexto de la request
+1. Request llega a un dominio personalizado como `streamish.mx`
+2. Middleware de Next.js extrae el host completo
+3. Busca en tabla `tenants` el registro con `custom_domain = 'streamish.mx'`
+4. Inyecta el tenant en el contexto de la request
 5. Todas las queries de Supabase filtran por ese `tenant_id`
 
 ## Separación de contextos
 
 | Contexto | URL | Quién accede |
 |---|---|---|
-| Superadmin | `admin.streamish.mx` | Solo tú |
+| Superadmin | `superadmin.streamingos.mx` | Solo tú |
 | Panel vendedor | `*.streamish.mx/admin` | El dueño del subdominio |
 | Tienda | `*.streamish.mx/` | Clientes del vendedor |
 | API interna | `*.streamish.mx/api/*` | Next.js server actions |

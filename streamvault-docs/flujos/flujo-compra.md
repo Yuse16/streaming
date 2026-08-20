@@ -30,7 +30,7 @@
 9. Descontar créditos al cliente
 10. Marcar cuenta como vendida
 11. Registrar movimiento en ledger
-12. Calcular y registrar comisión de StreamVault
+12. Calcular y registrar comisión de StreamingOS
 13. Registrar venta
 
 --- Respuesta al cliente ---

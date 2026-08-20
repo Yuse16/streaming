@@ -29,6 +29,7 @@ tenants
 create table tenants (
   id            uuid primary key default gen_random_uuid(),
   slug          text unique not null,
+  custom_domain text unique,
   nombre_tienda text not null,
   logo_url      text,
   color_primario text default '#6366f1',

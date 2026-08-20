@@ -1,19 +1,18 @@
-# StreamVault — Plataforma SaaS de Venta de Cuentas de Streaming
+# StreamingOS — Núcleo SaaS White-Label
 
 ## Qué es
 
-StreamVault es una plataforma multi-tenant donde cada vendedor de cuentas de streaming opera bajo su propio subdominio (`vendedor.streamish.mx`). La comisión de la plataforma queda desactivada inicialmente.
+StreamingOS es el núcleo multi-tenant donde cada vendedor opera con su propia marca y dominio personalizado. Streamish (`streamish.mx`) es el primer tenant configurado. La comisión de la plataforma queda desactivada inicialmente.
 
 ## Estructura del sistema
 
 ```
-streamvault/
+streamingos/
 ├── README.md                        ← este archivo
 ├── arquitectura/
 │   ├── vision-general.md            ← diagrama de alto nivel, roles, flujos
 │   └── multi-tenant.md              ← cómo funciona el subdominio por tenant
 ├── modulos/
-│   ├── panel-vendedor.md            ← gestión de inventario + carga de cuentas
 │   ├── panel-vendedor.md            ← admin del vendedor (su panel interno)
 │   ├── panel-superadmin.md          ← tu panel como operador de la plataforma
 │   ├── tienda-cliente.md            ← experiencia del comprador
@@ -36,7 +35,7 @@ streamvault/
 | Frontend | Next.js 14 (App Router) |
 | Backend / DB | Supabase (Postgres + Auth + Storage) |
 | OCR | Tesseract.js o Claude Vision API |
-| Hosting | Vercel (subdominios dinámicos) |
+| Hosting | Vercel (dominios personalizados por tenant) |
 | Pagos | Transferencia manual → créditos (fase 1) |
 | Notificaciones | WhatsApp Business API o webhooks (fase 2) |
 
